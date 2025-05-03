@@ -1,0 +1,153 @@
+<div class="container">
+    <!-- Header Section -->
+    <h1 class="header-box">My-To-Do-List</h1>
+
+    <hr>
+
+    <!-- Task Input Form -->
+    <form (ngSubmit)="onSubmit(taskForm)" #taskForm="ngForm">
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <label for="task">What do you need to do?</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="task"
+                    placeholder="Enter your task here..."
+                    ngModel
+                    name="task"
+                    required
+                    autocomplete="off">
+                <small
+                    *ngIf="taskForm.controls?.['task']?.invalid && taskForm.controls?.['task']?.dirty"
+                    id="errorMessage"
+                    class="form-text text-danger">
+                    Please enter a task
+                </small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="dueDate">Due Date</label>
+                <input
+                    type="date"
+                    class="form-control"
+                    id="dueDate"
+                    ngModel
+                    name="dueDate"
+                    [min]="today">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="dueTime">Due Time</label>
+                <input
+                    type="time"
+                    class="form-control"
+                    id="dueTime"
+                    ngModel
+                    name="dueTime">
+            </div>
+        </div>
+
+        <button
+            [disabled]="taskForm.invalid"
+            id="submitButton"
+            type="submit"
+            class="btn btn-primary">
+            Add Task
+        </button>
+    </form>
+
+    <hr>
+
+    <!-- Tasks Table -->
+    <div *ngIf="taskArray.length === 0" class="text-center p-4">
+        <p class="text-muted">No tasks yet. Add your first task above!</p>
+    </div>
+
+    <table class="table" *ngIf="taskArray.length > 0">
+        <thead>
+            <tr>
+                <th scope="col">Task</th>
+                <th scope="col">Due Date</th>
+                <th scope="col">Due Time</th>
+                <th scope="col">Status</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Normal mode (not editing) -->
+            <tr *ngFor="let t of taskArray; index as i" [class.completed-task]="t.isCompleted" [hidden]="editIndex === i">
+                <td [class.text-decoration-line-through]="t.isCompleted">{{t.taskName}}</td>
+                <td>{{t.dueDate | date:'mediumDate'}}</td>
+                <td>{{t.dueTime}}</td>
+                <td>
+                    <input
+                        (change)="onCheck(i)"
+                        id="myCheckbox"
+                        type="checkbox"
+                        [checked]="t.isCompleted">
+                </td>
+                <td class="action-buttons">
+                    <button
+                        class="btn btn-primary btn-sm me-2"
+                        (click)="onEdit(i)">
+                        Edit
+                    </button>
+                    <button
+                        class="btn btn-danger btn-sm"
+                        (click)="onDelete(i)">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+
+            <!-- Edit mode -->
+            <tr *ngFor="let t of taskArray; index as i" [hidden]="editIndex !== i" class="edit-row">
+                <td>
+                    <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        [(ngModel)]="editTask.taskName"
+                        name="editTaskName"
+                        required>
+                </td>
+                <td>
+                    <input
+                        type="date"
+                        class="form-control form-control-sm"
+                        [(ngModel)]="editTask.dueDate"
+                        name="editDueDate"
+                        [min]="today">
+                </td>
+                <td>
+                    <input
+                        type="time"
+                        class="form-control form-control-sm"
+                        [(ngModel)]="editTask.dueTime"
+                        name="editDueTime">
+                </td>
+                <td>
+                    <input
+                        type="checkbox"
+                        id="editCheckbox"
+                        [(ngModel)]="editTask.isCompleted"
+                        name="editIsCompleted">
+                </td>
+                <td class="action-buttons">
+                    <button
+                        class="btn btn-success btn-sm me-2"
+                        (click)="onSaveEdit()"
+                        [disabled]="!editTask.taskName">
+                        Save
+                    </button>
+                    <button
+                        class="btn btn-secondary btn-sm"
+                        (click)="onCancelEdit()">
+                        Cancel
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
